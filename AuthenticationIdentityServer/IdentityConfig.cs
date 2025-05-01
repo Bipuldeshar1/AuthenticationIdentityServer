@@ -13,7 +13,8 @@ namespace AuthenticationIdentityServer
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                 ClientSecrets = { new Secret("secret".Sha256()) },
                 AllowedScopes = { "api1" }
-            }
+            },
+
                };
 
         public static IEnumerable<ApiScope> ApiScopes =>

@@ -1,5 +1,6 @@
 ﻿using AuthenticationIdentityServer.Data;
 using AuthenticationIdentityServer.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthenticationIdentityServer.Services
@@ -31,9 +32,16 @@ namespace AuthenticationIdentityServer.Services
 
         }
 
-        public Task<User> ValidateUserAsync(string email, string password)
+        public async Task<User> ValidateUserAsync(string email, string password)
         {
-            throw new NotImplementedException();
+            var user= await context.users.FirstOrDefaultAsync(x=>x.Email==email);
+            if (user == null) {
+                return null;
+            }
+            if (user.Password != password) {
+                return null;
+            }
+            return user;
         }
     }
 }
