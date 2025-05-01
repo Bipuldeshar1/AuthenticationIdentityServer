@@ -1,4 +1,4 @@
-﻿using AuthenticationIdentityServer.Models;
+﻿using AuthenticationIdentityServer.Models.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthenticationIdentityServer.Data

@@ -1,11 +1,11 @@
 ﻿using AuthenticationIdentityServer.Data;
-using AuthenticationIdentityServer.Models;
+using AuthenticationIdentityServer.Models.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthenticationIdentityServer.Services
 {
-   
+
     public interface IAuthService
     {
         Task<User> ValidateUserAsync(string email, string password);
