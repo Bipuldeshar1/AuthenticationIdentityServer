@@ -1,11 +1,9 @@
 ﻿namespace AuthenticationIdentityServer.Models.Model
 {
-    public class User
+    public class Role
     {
         public int Id { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-
+        public string RoleName { get; set; }
         public ICollection<UserRoles> userRoles { get; set; }
     }
 }

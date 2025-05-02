@@ -3,6 +3,7 @@ using AuthenticationIdentityServer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthenticationIdentityServer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250502035813_added roes")]
+    partial class addedroes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,18 +39,6 @@ namespace AuthenticationIdentityServer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            RoleName = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            RoleName = "User"
-                        });
                 });
 
             modelBuilder.Entity("AuthenticationIdentityServer.Models.Model.User", b =>
@@ -69,14 +60,6 @@ namespace AuthenticationIdentityServer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 2,
-                            Email = "admin@example.com",
-                            Password = "Admin@123"
-                        });
                 });
 
             modelBuilder.Entity("AuthenticationIdentityServer.Models.Model.UserRoles", b =>
@@ -92,13 +75,6 @@ namespace AuthenticationIdentityServer.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = 2,
-                            RoleId = 1
-                        });
                 });
 
             modelBuilder.Entity("AuthenticationIdentityServer.Models.Model.UserRoles", b =>

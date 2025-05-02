@@ -1,4 +1,7 @@
-﻿using AuthenticationIdentityServer.Models.Model;
+﻿using AuthenticationIdentityServer.Data;
+using AuthenticationIdentityServer.Models.Model;
+using AuthenticationIdentityServer.Models.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -8,13 +11,27 @@ namespace AuthenticationIdentityServer.Services
 {
     public interface ITokenService
     {
-        string GenerateToken(User user);
+        Task<string> GenerateToken(User user);
     }
 
     public class TokenService : ITokenService
     {
-        public string GenerateToken(User user)
+        private readonly AppDbContext context;
+
+        public TokenService(AppDbContext context)
         {
+            this.context = context;
+        }
+        public async Task<string> GenerateToken(User user)
+        {
+
+            var roles = await context.UserRoles
+        .Where(ur => ur.UserId == user.Id)
+        .Include(ur => ur.Role)
+        .Select(ur => ur.Role.RoleName)
+        .ToListAsync();
+
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("SecreasdasdasdasdasdasdasdasdasdadasdsadadaasdsadasdasdastKey");
 
@@ -23,8 +40,8 @@ namespace AuthenticationIdentityServer.Services
                 Subject = new ClaimsIdentity(new[]
             {
                     //add claims
-                new Claim("name", user.Email),
-                //new Claim(ClaimTypes.Role, "Admin") 
+                new Claim("Name", user.Email),
+                new Claim(ClaimTypes.Role, roles[0]) 
             }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(

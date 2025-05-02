@@ -33,7 +33,7 @@ namespace AuthenticationIdentityServer.Controllers
             {
                 return BadRequest();
             }
-            var token =  tokenService.GenerateToken(verifiedUser);
+            var token =  await tokenService.GenerateToken(verifiedUser);
 
             return Ok(token);
         }

@@ -8,7 +8,7 @@ namespace AuthenticationIdentityServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class TestController : ControllerBase
     {
         [HttpPost("test")]
