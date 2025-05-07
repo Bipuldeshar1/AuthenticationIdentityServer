@@ -9,7 +9,8 @@ namespace AuthenticationIdentityServer.Services
     public interface IAuthService
     {
         Task<User> ValidateUserAsync(string email, string password);
-        Task RegisterUserAsync(string email, string password);
+        Task<User> RegisterUserAsync(string email, string? password = null);
+        Task<User> ValidateUserViaEmailAsync(string email);
     }
 
     public class AuthService : IAuthService
@@ -20,15 +21,29 @@ namespace AuthenticationIdentityServer.Services
         {
             this.context = context;
         }
-        public async Task RegisterUserAsync(string email, string password)
+        public async Task<User> RegisterUserAsync(string email, string? password=null)
         {
-            var user = new User
+            var user = new User();
+            if (password == null) {
+                 user = new User
+                {
+                    Email = email,
+                };
+
+            }
+            else
             {
-                Email=email,
-                Password=password
-            };
+                user = new User
+                {
+                    Email = email,
+                    Password = password
+                };
+            }
+            
             await context.users.AddAsync(user);
             await context.SaveChangesAsync();
+
+            return user;
 
         }
 
@@ -43,5 +58,16 @@ namespace AuthenticationIdentityServer.Services
             }
             return user;
         }
+
+        public async Task<User> ValidateUserViaEmailAsync(string email)
+        {
+            var user = await context.users.FirstOrDefaultAsync(x => x.Email == email);
+            if (user == null)
+            {
+                return null;
+            }
+            return user;
+        }
+
     }
 }

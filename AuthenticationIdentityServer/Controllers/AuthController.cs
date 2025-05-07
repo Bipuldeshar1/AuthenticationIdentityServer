@@ -1,4 +1,5 @@
-﻿using AuthenticationIdentityServer.Models.ViewModel;
+﻿using System.Security.Claims;
+using AuthenticationIdentityServer.Models.ViewModel;
 using AuthenticationIdentityServer.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ namespace AuthenticationIdentityServer.Controllers
         private readonly IAuthService authService;
         private readonly ITokenService tokenService;
 
-        public AuthController(IAuthService authService,ITokenService tokenService)
+        public AuthController(IAuthService authService, ITokenService tokenService)
         {
             this.authService = authService;
             this.tokenService = tokenService;
@@ -25,6 +26,7 @@ namespace AuthenticationIdentityServer.Controllers
             await authService.RegisterUserAsync(userModel.Email, userModel.Password);
             return Ok();
         }
+
         [HttpPost("Login")]
         public async Task<IActionResult> Login(UserVm userModel)
         {
@@ -33,9 +35,34 @@ namespace AuthenticationIdentityServer.Controllers
             {
                 return BadRequest();
             }
-            var token =  await tokenService.GenerateToken(verifiedUser);
+            var token = await tokenService.GenerateToken(verifiedUser);
 
             return Ok(token);
         }
+
+        [HttpPost("/okta-login")]
+        public async Task<IActionResult> OktaLogin(string token)
+        {
+            var accesstoken = "";
+            var email = HttpContext.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
+            {
+                return BadRequest("email not found in claims");
+            }
+            var user = await authService.ValidateUserViaEmailAsync(email.ToString());
+            if (user == null)
+            {
+                //adding user to db
+                var regUser = await authService.RegisterUserAsync(user!.Email);
+                accesstoken = await tokenService.GenerateToken(regUser);
+                return Ok(accesstoken);
+            }
+            
+            accesstoken = await tokenService.GenerateToken(user);
+
+            return Ok(accesstoken);
+        }
+
+
     }
 }

@@ -2,8 +2,11 @@ using AuthenticationIdentityServer;
 using AuthenticationIdentityServer.Data;
 using AuthenticationIdentityServer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,34 +48,73 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-//swagger config.
+
+
+//builder.Services.AddSwaggerGen(c =>
+//{
+//    c.SwaggerDoc("v1", new() { Title = "Your API", Version = "v1" });
+
+//    // Add JWT Authentication support
+//    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+//    {
+//        Name = "Authorization",
+//        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+//        Scheme = "Bearer",
+//        BearerFormat = "JWT",
+//        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+//        Description = "Enter 'Bearer' [space] and then your valid token.\r\n\r\nExample: \"Bearer eyJhb...\"",
+//    });
+
+//    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+//    {
+//        {
+//            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+//            {
+//                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+//                {
+//                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+//                    Id = "Bearer"
+//                }
+//            },
+//            Array.Empty<string>()
+//        }
+//    });
+//});
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "Your API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 
-    // Add JWT Authentication support
-    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "Enter 'Bearer' [space] and then your valid token.\r\n\r\nExample: \"Bearer eyJhb...\"",
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows
+        {
+            AuthorizationCode = new OpenApiOAuthFlow
+            {
+                AuthorizationUrl = new Uri("https://dev-89842335.okta.com/oauth2/default/v1/authorize"),
+                TokenUrl = new Uri("https://dev-89842335.okta.com/oauth2/default/v1/token"),
+                Scopes = new Dictionary<string, string>
+                {
+                    { "openid", "OpenID Connect" },
+                    { "profile", "User profile" },
+                    { "email", "User email" }
+                }
+            }
+        }
     });
 
-    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            new OpenApiSecurityScheme
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                Reference = new OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "oauth2"
                 }
             },
-            Array.Empty<string>()
+            new[] { "openid", "profile", "email" }
         }
     });
 });
@@ -83,7 +125,18 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    // app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
+
+        c.OAuthClientId("0oaomeiylmX1nXE9s5d7");
+    
+
+        c.OAuthUsePkce(); 
+        c.OAuthScopeSeparator(" ");
+        c.OAuthAppName("Swagger UI");
+    });
 }
 
 app.UseHttpsRedirection();
